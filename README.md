@@ -15,9 +15,17 @@ manual look instead of silently shipping a broken payload.
 **→ https://whitewhidow.github.io/ducky2evilcrow/**
 
 A static page (runs 100% client-side — nothing is uploaded): paste a DuckyScript
-payload in the left box, hit **Convert**, get the Evil Crow syntax in the right box.
-Same conversion logic as the Python CLI below. The CLI additionally does batch
-folder conversion and the per-file `REVIEW`/`EMULATED` report.
+payload in the left box, hit **Convert**, get the Evil Crow syntax in the right box,
+with a status badge (`OK` / `EMULATED` / `REVIEW`) that lists any lines it couldn't
+convert. Same conversion logic as the Python CLI below (the CLI adds batch folder
+conversion + a per-file report file).
+
+It also has a **Send to Evil Crow Cable Wind** box — enter the cable's IP (remembered
+for next time) and **Load** or **Load & Fire** the payload straight to it via the
+cable's `/runlivepayload` web API. ⚠️ Browsers block an HTTPS page from talking to the
+cable's plain HTTP ("mixed content"), so **Send only works when the page is served
+over local http** — download `index.html` and run e.g. `python3 -m http.server`, then
+open `http://localhost:8000`. (The conversion itself works fine on the hosted HTTPS page.)
 
 > ⚠️ For authorized security research / testing only. Use exclusively on devices and
 > accounts you own or have explicit permission to test.

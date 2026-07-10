@@ -33,6 +33,18 @@
   .issues{margin-top:10px;background:var(--panel);border:1px solid var(--edge);border-radius:10px;padding:10px 14px}
   .issue{font-family:var(--mono);font-size:12.5px;color:var(--dim);padding:2px 0}
   .issue .d{color:#f87171} .issue .e{color:#fbbf24}
+  .send{margin-top:26px;background:var(--panel);border:1px solid var(--edge);border-radius:10px;padding:14px 16px}
+  .send h3{margin:0 0 4px;font-size:15px}
+  .send .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px}
+  .send input{background:#0c1116;color:var(--fg);border:1px solid var(--edge);border-radius:7px;
+              padding:8px 11px;font-family:var(--mono);font-size:13px;width:230px}
+  #fire{background:#f87171;color:#0b0f13;border:0;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer}
+  #fire:hover{filter:brightness(1.08)}
+  #load{background:#20303a;color:var(--fg);border:1px solid var(--edge);border-radius:8px;padding:8px 14px;cursor:pointer}
+  #load:hover{background:#294050}
+  #sendstatus{margin-top:11px;font-size:13px;font-family:var(--mono)}
+  .note{color:var(--dim);font-size:12.5px}
+  .note code{background:#0c1116;padding:1px 5px;border-radius:4px;font-family:var(--mono);font-size:12px}
 </style>
 </head>
 <body>
@@ -55,6 +67,19 @@
 
   <div class="mid"><button id="convert">Convert ↓</button></div>
   <div id="status"></div>
+
+  <div class="send">
+    <h3>Send to Evil Crow Cable Wind</h3>
+    <div class="note">Pushes the converted payload to the cable over its WiFi web API
+      (must be on the same network). The IP is remembered for next time.</div>
+    <div class="row">
+      <input id="ip" placeholder="cable IP — e.g. 172.20.10.2">
+      <button id="load">Load onto cable</button>
+      <button id="fire">Load &amp; Fire ⚡</button>
+    </div>
+    <div id="sendstatus"></div>
+    <div id="mixedwarn" class="note" style="margin-top:11px"></div>
+  </div>
 </div>
 
 <script>
@@ -135,6 +160,33 @@ $('convert').onclick=()=>{const {out,report}=convertText($('in').value);
   $('out').value=out.join('\n')+(out.length?'\n':'');
   if($('in').value.trim()==='') $('status').innerHTML=''; else render(report);};
 $('clear').onclick=()=>{$('in').value='';$('out').value='';$('status').innerHTML='';};
+
+// ---- send to the cable (Evil Crow web API: POST /runlivepayload) ----
+$('ip').value=localStorage.getItem('ecw_ip')||'';
+function send(fire){
+  const ip=$('ip').value.trim();
+  if(!ip){$('sendstatus').innerHTML='enter the cable IP first';return;}
+  localStorage.setItem('ecw_ip',ip);
+  let payload=$('out').value.trim();
+  if(!payload){payload=convertText($('in').value).out.join('\n');$('out').value=payload+(payload?'\n':'');}
+  if(!payload){$('sendstatus').innerHTML='nothing to send — convert a payload first';return;}
+  $('sendstatus').innerHTML='sending to '+ip+' …';
+  const body='livepayload='+encodeURIComponent(payload)+(fire?'&configmodule=1':'');
+  fetch('http://'+ip+'/runlivepayload',{method:'POST',mode:'no-cors',
+    headers:{'Content-Type':'application/x-www-form-urlencoded'},body})
+    .then(()=>{$('sendstatus').innerHTML=fire
+      ? '✓ sent &amp; fired on '+ip+' (no-cors: can’t read the cable’s reply, but it was delivered)'
+      : '✓ loaded onto '+ip+' — hit Run in the panel, or use Load &amp; Fire';})
+    .catch(e=>{$('sendstatus').innerHTML='✗ could not reach '+ip+' — '+e.message+
+      '. Same network as the cable? '+(location.protocol==='https:'?'(see the HTTPS note below)':'');});
+}
+$('load').onclick=()=>send(false);
+$('fire').onclick=()=>send(true);
+if(location.protocol==='https:')
+  $('mixedwarn').innerHTML='⚠ This hosted page is HTTPS and the cable speaks plain HTTP, so browsers '+
+    'block the connection (<b>mixed content</b>) — <b>Send won’t work from here</b>. To use it, run this '+
+    'page over local http: download <code>index.html</code> and serve it, e.g. '+
+    '<code>python3 -m http.server</code> then open <code>http://localhost:8000</code>.';
 $('copy').onclick=()=>{$('out').select();document.execCommand('copy');};
 $('in').value=`REM open an admin PowerShell (Flipper / Hak5 DuckyScript)
 DELAY 1000
