@@ -3,93 +3,55 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ducky2evilcrow — DuckyScript → Evil Crow Cable Wind converter</title>
+<title>ducky2evilcrow — DuckyScript → Evil Crow Cable Wind</title>
 <style>
   :root{--bg:#0f1216;--panel:#171c22;--edge:#262d36;--fg:#e6e9ee;--dim:#8b95a3;
-        --accent:#6ee7b7;--ok:#6ee7b7;--emu:#fbbf24;--rev:#f87171;--mono:ui-monospace,Menlo,Consolas,monospace}
+        --accent:#6ee7b7;--mono:ui-monospace,Menlo,Consolas,monospace}
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,Segoe UI,Roboto,sans-serif}
-  header{padding:22px 20px 10px;max-width:1100px;margin:0 auto}
-  h1{margin:0 0 4px;font-size:22px}
-  h1 span{color:var(--accent)}
-  .sub{color:var(--dim);font-size:13px}
-  .sub a{color:var(--accent)}
-  main{max-width:1100px;margin:0 auto;padding:10px 20px 60px}
-  .opts{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin:10px 0}
-  .opts label{color:var(--dim);font-size:13px;display:flex;gap:6px;align-items:center;cursor:pointer}
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  @media(max-width:760px){.grid{grid-template-columns:1fr}}
+  .wrap{max-width:1000px;margin:0 auto;padding:22px 20px 50px}
+  h1{margin:0 0 4px;font-size:22px} h1 span{color:var(--accent)}
+  .sub{color:var(--dim);font-size:13px;margin-bottom:18px} .sub a{color:var(--accent)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+  @media(max-width:720px){.grid{grid-template-columns:1fr}}
   .panel{background:var(--panel);border:1px solid var(--edge);border-radius:10px;overflow:hidden}
-  .panel .bar{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid var(--edge);font-size:12px;color:var(--dim)}
-  textarea{width:100%;height:340px;background:transparent;color:var(--fg);border:0;padding:12px;
-           font-family:var(--mono);font-size:13px;resize:vertical;outline:none;white-space:pre;overflow-wrap:normal;overflow-x:auto}
-  button{background:#20303a;color:var(--fg);border:1px solid var(--edge);border-radius:7px;padding:5px 12px;font-size:12px;cursor:pointer}
-  button:hover{background:#294050}
-  .report{margin-top:16px;background:var(--panel);border:1px solid var(--edge);border-radius:10px;padding:12px 14px}
-  .badge{display:inline-block;padding:1px 9px;border-radius:20px;font-size:12px;font-weight:600}
-  .OK{background:rgba(110,231,183,.15);color:var(--ok)}
-  .EMULATED{background:rgba(251,191,36,.15);color:var(--emu)}
-  .REVIEW{background:rgba(248,113,113,.15);color:var(--rev)}
-  .rep-line{font-family:var(--mono);font-size:12.5px;color:var(--dim);padding:2px 0}
-  .rep-line .drop{color:var(--rev)} .rep-line .emu{color:var(--emu)}
-  .files{margin-top:24px}
-  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
-  th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--edge)}
-  th{color:var(--dim);font-weight:500}
-  td.name{font-family:var(--mono);font-size:12px}
-  .drop-zone{margin-top:10px;border:1.5px dashed var(--edge);border-radius:10px;padding:20px;text-align:center;color:var(--dim);cursor:pointer}
-  .drop-zone.drag{border-color:var(--accent);color:var(--fg)}
-  .note{color:var(--dim);font-size:12.5px;margin-top:10px}
-  code{background:#0c1116;padding:1px 5px;border-radius:4px;font-family:var(--mono);font-size:12px}
+  .panel .bar{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;
+              border-bottom:1px solid var(--edge);font-size:12px;color:var(--dim)}
+  textarea{width:100%;height:380px;background:transparent;color:var(--fg);border:0;padding:12px;
+           font-family:var(--mono);font-size:13px;resize:vertical;outline:none;white-space:pre;overflow-x:auto}
+  .mid{display:flex;justify-content:center;margin:16px 0}
+  #convert{background:var(--accent);color:#0b0f13;border:0;border-radius:8px;padding:10px 26px;
+           font-size:15px;font-weight:700;cursor:pointer}
+  #convert:hover{filter:brightness(1.08)}
+  button.mini{background:#20303a;color:var(--fg);border:1px solid var(--edge);border-radius:7px;
+              padding:4px 11px;font-size:12px;cursor:pointer} button.mini:hover{background:#294050}
 </style>
 </head>
 <body>
-<header>
+<div class="wrap">
   <h1>ducky2<span>evilcrow</span></h1>
-  <div class="sub">Convert Flipper Zero / Hak5 Rubber Ducky <b>DuckyScript</b> payloads to
-    <b>Evil Crow Cable Wind</b> native syntax — entirely in your browser, nothing uploaded.
+  <div class="sub">Paste a Flipper/Hak5 <b>DuckyScript</b> BadUSB payload, hit Convert, get
+    <b>Evil Crow Cable Wind</b> syntax. Runs entirely in your browser.
     · <a href="https://github.com/whitewhidow/ducky2evilcrow">source</a></div>
-</header>
-<main>
-  <div class="opts">
-    <label><input type="checkbox" id="winprint"> <b>WinPrint</b> mode (layout-agnostic, Windows targets)</label>
-    <label style="margin-left:auto"><span id="status"></span></label>
-  </div>
 
   <div class="grid">
     <div class="panel">
-      <div class="bar"><span>DuckyScript (Flipper / Hak5)</span><button id="clear">clear</button></div>
+      <div class="bar"><span>DuckyScript (Flipper / Hak5)</span><button class="mini" id="clear">clear</button></div>
       <textarea id="in" spellcheck="false"></textarea>
     </div>
     <div class="panel">
-      <div class="bar"><span>Evil Crow Cable Wind</span><button id="copy">copy</button></div>
+      <div class="bar"><span>Evil Crow Cable Wind</span><button class="mini" id="copy">copy</button></div>
       <textarea id="out" spellcheck="false" readonly></textarea>
     </div>
   </div>
 
-  <div class="report" id="report"></div>
+  <div class="mid"><button id="convert">Convert ↓</button></div>
+</div>
 
-  <div class="files">
-    <h3 style="margin:0 0 2px">Batch: convert a whole folder of <code>.txt</code> payloads</h3>
-    <div class="note">Everything runs locally — files never leave your machine.</div>
-    <div class="drop-zone" id="drop">Drop <code>.txt</code> files here, or click to choose
-      <input type="file" id="files" accept=".txt" multiple hidden></div>
-    <div id="batchOut"></div>
-  </div>
-
-  <div class="note">
-    Reminder: set the matching <b>keyboard layout</b> in the Evil Crow web panel (EN_US, ES_ES, …)
-    or use WinPrint for Windows. Flagged <span class="badge REVIEW">REVIEW</span> files use features
-    the Evil Crow interpreter can't do (DuckyScript 2.0/3.0 logic — <code>IF/WHILE/VAR/DEFINE</code> —
-    <code>WAIT_FOR_BUTTON_PRESS</code>, <code>ALTCODE</code>). For authorized testing only.
-  </div>
-</main>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
-const MODIFIERS = {CTRL:'KEY_LEFT_CTRL',CONTROL:'KEY_LEFT_CTRL',ALT:'KEY_LEFT_ALT',SHIFT:'KEY_LEFT_SHIFT',
+const MODIFIERS={CTRL:'KEY_LEFT_CTRL',CONTROL:'KEY_LEFT_CTRL',ALT:'KEY_LEFT_ALT',SHIFT:'KEY_LEFT_SHIFT',
   GUI:'KEY_LEFT_GUI',WINDOWS:'KEY_LEFT_GUI',WIN:'KEY_LEFT_GUI',COMMAND:'KEY_LEFT_GUI'};
-const NAMED_KEYS = {ENTER:'KEY_ENTER',RETURN:'KEY_ENTER',TAB:'KEY_TAB',SPACE:'KEY_SPACE',ESC:'KEY_ESC',ESCAPE:'KEY_ESC',
+const NAMED_KEYS={ENTER:'KEY_ENTER',RETURN:'KEY_ENTER',TAB:'KEY_TAB',SPACE:'KEY_SPACE',ESC:'KEY_ESC',ESCAPE:'KEY_ESC',
   DELETE:'KEY_DELETE',DEL:'KEY_DELETE',BACKSPACE:'KEY_BACKSPACE',
   UP:'KEY_UP_ARROW',UPARROW:'KEY_UP_ARROW',DOWN:'KEY_DOWN_ARROW',DOWNARROW:'KEY_DOWN_ARROW',
   LEFT:'KEY_LEFT_ARROW',LEFTARROW:'KEY_LEFT_ARROW',RIGHT:'KEY_RIGHT_ARROW',RIGHTARROW:'KEY_RIGHT_ARROW',
@@ -100,121 +62,63 @@ const NAMED_KEYS = {ENTER:'KEY_ENTER',RETURN:'KEY_ENTER',TAB:'KEY_TAB',SPACE:'KE
   PRINTSCREEN:'KEY_PRINT_SCREEN',PRINT_SCREEN:'KEY_PRINT_SCREEN',BREAK:'KEY_PAUSE',PAUSE:'KEY_PAUSE',
   MENU:'KEY_MENU',APP:'KEY_MENU'};
 for(let i=1;i<=12;i++) NAMED_KEYS['F'+i]='KEY_F'+i;
-const UNSUPPORTED = new Set(['ALTCHAR','ALTCODE','ALTCODEPOINT','WAITFORBUTTONPRESS','WAIT_FOR_BUTTON_PRESS',
+const UNSUPPORTED=new Set(['ALTCHAR','ALTCODE','ALTCODEPOINT','WAITFORBUTTONPRESS','WAIT_FOR_BUTTON_PRESS',
   'LED','SYSRQ','INJECT_MOD','GLOBE','VOLUP','VOLDOWN','VOLUME_UP','VOLUME_DOWN','MUTE','PLAYPAUSE','PLAY',
   'STOP','NEXTTRACK','PREVTRACK','BRIGHTNESS_UP','BRIGHTNESS_DOWN','MEDIA',
   'VAR','IF','ELSE','END_IF','WHILE','END_WHILE','FUNCTION','END_FUNCTION','DEFINE']);
 
-function mapKey(tok){const u=tok.toUpperCase();if(u in NAMED_KEYS)return NAMED_KEYS[u];if(tok.length===1)return tok;return null;}
-
+function mapKey(t){const u=t.toUpperCase();if(u in NAMED_KEYS)return NAMED_KEYS[u];if(t.length===1)return t;return null;}
 function convertCombo(tokens){
   let ex=[];for(const t of tokens){(t.includes('-')&&t.length>1)?ex.push(...t.split('-').filter(p=>p)):ex.push(t);}
   tokens=ex;
   const keys=tokens.filter(t=>!(t.toUpperCase() in MODIFIERS));
   const mods=tokens.filter(t=>t.toUpperCase() in MODIFIERS).map(t=>MODIFIERS[t.toUpperCase()]);
-  if(mods.length===0 && keys.length===1){const k=mapKey(keys[0]);return k?[['PressRelease '+k],true]:[null,false];}
-  if(keys.length===0 && mods.length){if(mods.length===1)return[['PressRelease '+mods[0]],true];
+  if(mods.length===0&&keys.length===1){const k=mapKey(keys[0]);return k?[['PressRelease '+k],true]:[null,false];}
+  if(keys.length===0&&mods.length){if(mods.length===1)return[['PressRelease '+mods[0]],true];
     return[[...mods.map(m=>'Press '+m),'Release'],true];}
   let out=mods.map(m=>'Press '+m),ok=true;
   for(const k of keys){const mk=mapKey(k);mk===null?ok=false:out.push('PressRelease '+mk);}
   out.push('Release');return[out,ok];
 }
-
-function convertText(text,winprint){
-  const PRINT=winprint?'WinPrint':'Print',PRINTLN=winprint?'WinPrintLine':'PrintLine';
-  const out=[],report=[];let dd=0,last=[];const L=text.split(/\r?\n/);let i=0;
+function convertText(text){
+  const out=[];let dd=0,last=[];const L=text.split(/\r?\n/);let i=0;
   while(i<L.length){
-    const ln=i+1,s=L[i].trim();i++;
+    const s=L[i].trim();i++;
     if(s===''||s.startsWith('//')||s.startsWith('#'))continue;
     const sp=s.indexOf(' '),cu=(sp<0?s:s.slice(0,sp)).toUpperCase(),arg=sp<0?'':s.slice(sp+1);
     let block=null;
     if(cu.startsWith('REM')||['END_STRING','END_STRINGLN','END_REM','ATTACKMODE','DUCKY_LANG','LOCALE'].includes(cu)){continue;}
     else if(cu==='HOLD'){const a=arg.trim().toUpperCase();const k=(a in MODIFIERS)?MODIFIERS[a]:mapKey(arg.trim());
-      if(k===null){report.push([ln,s,'drop']);continue;}block=['Press '+k];}
+      if(k===null)continue;block=['Press '+k];}
     else if(cu==='RELEASE'){block=['Release'];}
-    else if((cu==='STRING'||cu==='STR')&&arg!==''){block=[PRINT+' '+arg];}
-    else if((cu==='STRINGLN'||cu==='STRLN')&&arg!==''){block=[PRINTLN+' '+arg];}
+    else if((cu==='STRING'||cu==='STR')&&arg!==''){block=['Print '+arg];}
+    else if((cu==='STRINGLN'||cu==='STRLN')&&arg!==''){block=['PrintLine '+arg];}
     else if(['STRING','STR','STRINGLN','STRLN'].includes(cu)){
       const end=(cu==='STRINGLN'||cu==='STRLN')?'END_STRINGLN':'END_STRING';block=[];
-      while(i<L.length&&L[i].trim().toUpperCase()!==end){block.push(PRINTLN+' '+L[i]);i++;}
+      while(i<L.length&&L[i].trim().toUpperCase()!==end){block.push('PrintLine '+L[i]);i++;}
       if(i<L.length)i++;}
     else if(cu==='ALTSTRING'){block=['WinPrint '+arg];}
     else if(cu==='DELAY'){block=['Delay '+arg.trim()];}
-    else if(cu==='DEFAULT_DELAY'||cu==='DEFAULTDELAY'){const n=parseInt(arg.trim(),10);dd=isNaN(n)?0:n;report.push([ln,s,'emulate']);continue;}
+    else if(cu==='DEFAULT_DELAY'||cu==='DEFAULTDELAY'){const n=parseInt(arg.trim(),10);dd=isNaN(n)?0:n;continue;}
     else if(cu==='ENTER'||cu==='RETURN'){block=['PressRelease KEY_ENTER'];}
-    else if(cu==='REPEAT'){const n=parseInt(arg.trim(),10)||0;for(let r=0;r<n;r++)out.push(...last);report.push([ln,s,'emulate']);continue;}
-    else if(UNSUPPORTED.has(cu)){report.push([ln,s,'drop']);continue;}
-    else{const[b,ok]=convertCombo(s.split(/\s+/));if(b===null||!ok){report.push([ln,s,'drop']);continue;}block=b;}
+    else if(cu==='REPEAT'){const n=parseInt(arg.trim(),10)||0;for(let r=0;r<n;r++)out.push(...last);continue;}
+    else if(UNSUPPORTED.has(cu)){continue;}
+    else{const[b,ok]=convertCombo(s.split(/\s+/));if(b===null||!ok)continue;block=b;}
     if(dd>0&&!(block.length===1&&block[0].startsWith('Delay ')))block=block.concat(['Delay '+dd]);
     out.push(...block);if(block.length)last=block;
   }
-  return{out,report};
+  return out;
 }
-const statusOf=r=>r.some(x=>x[2]==='drop')?'REVIEW':(r.some(x=>x[2]==='emulate')?'EMULATED':'OK');
-
-// ---- live paste converter ----
 const $=id=>document.getElementById(id);
-function run(){
-  const {out,report}=convertText($('in').value,$('winprint').checked);
-  $('out').value=out.join('\n')+(out.length?'\n':'');
-  const st=$('in').value.trim()===''?'':statusOf(report);
-  $('status').innerHTML=st?`<span class="badge ${st}">${st}</span>`:'';
-  const rep=$('report');
-  if(!report.length){rep.innerHTML='<span class="badge OK">OK</span> clean conversion — nothing dropped.';return;}
-  rep.innerHTML='<div style="margin-bottom:6px"><span class="badge '+statusOf(report)+'">'+statusOf(report)+'</span></div>'+
-    report.map(([l,t,k])=>`<div class="rep-line">line ${l} <span class="${k==='drop'?'drop':'emu'}">${k==='drop'?'DROPPED':'emulated'}</span> : ${t.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div>`).join('');
-}
-$('in').addEventListener('input',run);
-$('winprint').addEventListener('change',run);
-$('clear').onclick=()=>{$('in').value='';run();};
+$('convert').onclick=()=>{const out=convertText($('in').value);$('out').value=out.join('\n')+(out.length?'\n':'');};
+$('clear').onclick=()=>{$('in').value='';$('out').value='';};
 $('copy').onclick=()=>{$('out').select();document.execCommand('copy');};
-
-// ---- batch files ----
-let results=[];
-function handleFiles(list){
-  results=[];const files=[...list].filter(f=>f.name.toLowerCase().endsWith('.txt'));
-  if(!files.length){return;}
-  let done=0;
-  files.forEach(f=>{const r=new FileReader();r.onload=()=>{
-    const {out,report}=convertText(r.result,$('winprint').checked);
-    results.push({name:f.name,text:out.join('\n')+(out.length?'\n':''),status:statusOf(report),
-      drops:report.filter(x=>x[2]==='drop').length});
-    if(++done===files.length)renderBatch();
-  };r.readAsText(f);});
-}
-function renderBatch(){
-  results.sort((a,b)=>(a.status==='REVIEW'?0:1)-(b.status==='REVIEW'?0:1)||a.name.localeCompare(b.name));
-  const ok=results.filter(r=>r.status==='OK').length,em=results.filter(r=>r.status==='EMULATED').length,rv=results.filter(r=>r.status==='REVIEW').length;
-  let html=`<div class="note">${results.length} files · <span class="badge OK">OK ${ok}</span> <span class="badge EMULATED">EMULATED ${em}</span> <span class="badge REVIEW">REVIEW ${rv}</span>
-    ${window.JSZip?'<button id="zip" style="margin-left:10px">download all (.zip)</button>':''}</div>
-    <table><tr><th>file</th><th>status</th><th>dropped</th><th></th></tr>`;
-  results.forEach((r,idx)=>{html+=`<tr><td class="name">${r.name}</td><td><span class="badge ${r.status}">${r.status}</span></td>
-    <td>${r.drops||''}</td><td><button data-dl="${idx}">download</button></td></tr>`;});
-  html+='</table>';
-  $('batchOut').innerHTML=html;
-  document.querySelectorAll('[data-dl]').forEach(b=>b.onclick=()=>{const r=results[b.dataset.dl];
-    dl(r.text,r.name);});
-  if(window.JSZip&&$('zip'))$('zip').onclick=async()=>{const z=new JSZip();results.forEach(r=>z.file(r.name,r.text));
-    const blob=await z.generateAsync({type:'blob'});dl(blob,'ducky2evilcrow.zip');};
-}
-function dl(data,name){const blob=data instanceof Blob?data:new Blob([data],{type:'text/plain'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href);}
-$('files').addEventListener('change',e=>handleFiles(e.target.files));
-const dz=$('drop');
-dz.onclick=()=>$('files').click();
-dz.ondragover=e=>{e.preventDefault();dz.classList.add('drag');};
-dz.ondragleave=()=>dz.classList.remove('drag');
-dz.ondrop=e=>{e.preventDefault();dz.classList.remove('drag');handleFiles(e.dataTransfer.files);};
-
-// demo input
-$('in').value=`REM Open an admin PowerShell (Flipper / Hak5 DuckyScript)
-DEFAULT_DELAY 200
+$('in').value=`REM open an admin PowerShell (Flipper / Hak5 DuckyScript)
 DELAY 1000
 GUI r
 STRING powershell
 ENTER
 CTRL-ALT t`;
-run();
 </script>
 </body>
 </html>

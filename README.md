@@ -14,9 +14,10 @@ manual look instead of silently shipping a broken payload.
 
 **→ https://whitewhidow.github.io/ducky2evilcrow/**
 
-A static page (runs 100% client-side — nothing is uploaded): paste a payload and get
-the converted output live, or drag-drop a whole folder of `.txt` files and download
-them (or a `.zip`), each with its conversion status. Same logic as the Python CLI below.
+A static page (runs 100% client-side — nothing is uploaded): paste a DuckyScript
+payload in the left box, hit **Convert**, get the Evil Crow syntax in the right box.
+Same conversion logic as the Python CLI below. The CLI additionally does batch
+folder conversion and the per-file `REVIEW`/`EMULATED` report.
 
 > ⚠️ For authorized security research / testing only. Use exclusively on devices and
 > accounts you own or have explicit permission to test.
