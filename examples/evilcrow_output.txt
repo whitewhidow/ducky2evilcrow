@@ -1,0 +1,18 @@
+Delay 1000
+Press KEY_LEFT_GUI
+PressRelease r
+Release
+Delay 200
+Delay 500
+Print powershell
+Delay 200
+PressRelease KEY_ENTER
+Delay 200
+Delay 800
+PrintLine Write-Host "hello from ducky"
+Delay 200
+Press KEY_LEFT_CTRL
+Press KEY_LEFT_ALT
+PressRelease t
+Release
+Delay 200

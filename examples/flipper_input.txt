@@ -1,0 +1,10 @@
+REM Open an admin PowerShell and print a message (Flipper/Hak5 DuckyScript)
+DEFAULT_DELAY 200
+DELAY 1000
+GUI r
+DELAY 500
+STRING powershell
+ENTER
+DELAY 800
+STRINGLN Write-Host "hello from ducky"
+CTRL-ALT t
