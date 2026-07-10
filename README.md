@@ -10,6 +10,14 @@ DuckyScript payloads won't run on it as-is. This tool translates them, and **fla
 exactly which files use features the Evil Crow can't do** so you know what needs a
 manual look instead of silently shipping a broken payload.
 
+## 🌐 Use it in your browser — no install
+
+**→ https://whitewhidow.github.io/ducky2evilcrow/**
+
+A static page (runs 100% client-side — nothing is uploaded): paste a payload and get
+the converted output live, or drag-drop a whole folder of `.txt` files and download
+them (or a `.zip`), each with its conversion status. Same logic as the Python CLI below.
+
 > ⚠️ For authorized security research / testing only. Use exclusively on devices and
 > accounts you own or have explicit permission to test.
 
