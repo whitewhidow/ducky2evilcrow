@@ -25,6 +25,14 @@
   #convert:hover{filter:brightness(1.08)}
   button.mini{background:#20303a;color:var(--fg);border:1px solid var(--edge);border-radius:7px;
               padding:4px 11px;font-size:12px;cursor:pointer} button.mini:hover{background:#294050}
+  #status{margin-top:6px}
+  .badge{display:inline-block;padding:2px 11px;border-radius:20px;font-size:13px;font-weight:600}
+  .OK{background:rgba(110,231,183,.15);color:#6ee7b7}
+  .EMULATED{background:rgba(251,191,36,.15);color:#fbbf24}
+  .REVIEW{background:rgba(248,113,113,.15);color:#f87171}
+  .issues{margin-top:10px;background:var(--panel);border:1px solid var(--edge);border-radius:10px;padding:10px 14px}
+  .issue{font-family:var(--mono);font-size:12.5px;color:var(--dim);padding:2px 0}
+  .issue .d{color:#f87171} .issue .e{color:#fbbf24}
 </style>
 </head>
 <body>
@@ -46,6 +54,7 @@
   </div>
 
   <div class="mid"><button id="convert">Convert ↓</button></div>
+  <div id="status"></div>
 </div>
 
 <script>
@@ -81,15 +90,15 @@ function convertCombo(tokens){
   out.push('Release');return[out,ok];
 }
 function convertText(text){
-  const out=[];let dd=0,last=[];const L=text.split(/\r?\n/);let i=0;
+  const out=[],report=[];let dd=0,last=[];const L=text.split(/\r?\n/);let i=0;
   while(i<L.length){
-    const s=L[i].trim();i++;
+    const ln=i+1,s=L[i].trim();i++;
     if(s===''||s.startsWith('//')||s.startsWith('#'))continue;
     const sp=s.indexOf(' '),cu=(sp<0?s:s.slice(0,sp)).toUpperCase(),arg=sp<0?'':s.slice(sp+1);
     let block=null;
     if(cu.startsWith('REM')||['END_STRING','END_STRINGLN','END_REM','ATTACKMODE','DUCKY_LANG','LOCALE'].includes(cu)){continue;}
     else if(cu==='HOLD'){const a=arg.trim().toUpperCase();const k=(a in MODIFIERS)?MODIFIERS[a]:mapKey(arg.trim());
-      if(k===null)continue;block=['Press '+k];}
+      if(k===null){report.push([ln,s,'drop']);continue;}block=['Press '+k];}
     else if(cu==='RELEASE'){block=['Release'];}
     else if((cu==='STRING'||cu==='STR')&&arg!==''){block=['Print '+arg];}
     else if((cu==='STRINGLN'||cu==='STRLN')&&arg!==''){block=['PrintLine '+arg];}
@@ -99,19 +108,33 @@ function convertText(text){
       if(i<L.length)i++;}
     else if(cu==='ALTSTRING'){block=['WinPrint '+arg];}
     else if(cu==='DELAY'){block=['Delay '+arg.trim()];}
-    else if(cu==='DEFAULT_DELAY'||cu==='DEFAULTDELAY'){const n=parseInt(arg.trim(),10);dd=isNaN(n)?0:n;continue;}
+    else if(cu==='DEFAULT_DELAY'||cu==='DEFAULTDELAY'){const n=parseInt(arg.trim(),10);dd=isNaN(n)?0:n;report.push([ln,s,'emulate']);continue;}
     else if(cu==='ENTER'||cu==='RETURN'){block=['PressRelease KEY_ENTER'];}
-    else if(cu==='REPEAT'){const n=parseInt(arg.trim(),10)||0;for(let r=0;r<n;r++)out.push(...last);continue;}
-    else if(UNSUPPORTED.has(cu)){continue;}
-    else{const[b,ok]=convertCombo(s.split(/\s+/));if(b===null||!ok)continue;block=b;}
+    else if(cu==='REPEAT'){const n=parseInt(arg.trim(),10)||0;for(let r=0;r<n;r++)out.push(...last);report.push([ln,s,'emulate']);continue;}
+    else if(UNSUPPORTED.has(cu)){report.push([ln,s,'drop']);continue;}
+    else{const[b,ok]=convertCombo(s.split(/\s+/));if(b===null||!ok){report.push([ln,s,'drop']);continue;}block=b;}
     if(dd>0&&!(block.length===1&&block[0].startsWith('Delay ')))block=block.concat(['Delay '+dd]);
     out.push(...block);if(block.length)last=block;
   }
-  return out;
+  return {out,report};
 }
+const statusOf=r=>r.some(x=>x[2]==='drop')?'REVIEW':(r.some(x=>x[2]==='emulate')?'EMULATED':'OK');
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
 const $=id=>document.getElementById(id);
-$('convert').onclick=()=>{const out=convertText($('in').value);$('out').value=out.join('\n')+(out.length?'\n':'');};
-$('clear').onclick=()=>{$('in').value='';$('out').value='';};
+function render(report){
+  const s=statusOf(report),lbl={OK:'✓ converted cleanly — no issues',
+    EMULATED:'✓ converted — some commands emulated (see below)',
+    REVIEW:'⚠ some lines could NOT be converted — dropped (see below)'}[s];
+  let html='<span class="badge '+s+'">'+s+'</span> &nbsp;'+lbl;
+  if(report.length) html+='<div class="issues">'+report.map(([l,t,k])=>
+    '<div class="issue">line '+l+' <span class="'+(k==='drop'?'d':'e')+'">'+
+    (k==='drop'?'DROPPED (unsupported)':'emulated')+'</span> : '+esc(t)+'</div>').join('')+'</div>';
+  $('status').innerHTML=html;
+}
+$('convert').onclick=()=>{const {out,report}=convertText($('in').value);
+  $('out').value=out.join('\n')+(out.length?'\n':'');
+  if($('in').value.trim()==='') $('status').innerHTML=''; else render(report);};
+$('clear').onclick=()=>{$('in').value='';$('out').value='';$('status').innerHTML='';};
 $('copy').onclick=()=>{$('out').select();document.execCommand('copy');};
 $('in').value=`REM open an admin PowerShell (Flipper / Hak5 DuckyScript)
 DELAY 1000
